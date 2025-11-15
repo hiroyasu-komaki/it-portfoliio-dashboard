@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITポートフォリオ管理ダッシュボード / IT Portfolio Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .lang-en {
+            display: none;
+        }
+        
+        [data-lang="en"] .lang-ja {
+            display: none;
+        }
+        
+        [data-lang="en"] .lang-en {
+            display: inline;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 p-5" data-lang="ja">
+    <div class="fixed top-5 right-5 z-[1000] bg-white py-2.5 px-4 rounded-full shadow-md flex gap-2.5">
+        <button class="lang-btn active px-4 py-2 border-none rounded-full cursor-pointer font-semibold text-xs transition-all duration-300 bg-gradient-to-br from-indigo-500 to-purple-600 text-white hover:opacity-90" onclick="setLanguage('ja')">
+            日本語
+        </button>
+        <button class="lang-btn px-4 py-2 border-none rounded-full cursor-pointer font-semibold text-xs transition-all duration-300 bg-gray-100 text-gray-500 hover:bg-gray-200" onclick="setLanguage('en')">
+            English
+        </button>
+    </div>
+    
+    <div class="max-w-[1400px] mx-auto">
+        <header class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-8 rounded-2xl mb-8 shadow-md">
+            <h1 class="text-3xl font-bold mb-2 lang-ja">ITポートフォリオ管理ダッシュボード</h1>
+            <h1 class="text-3xl font-bold mb-2 lang-en">IT Portfolio Management Dashboard</h1>
+            <p class="opacity-90 text-sm lang-ja">最終更新: 2025年11月2日 | 第4四半期</p>
+            <p class="opacity-90 text-sm lang-en">Last Updated: November 2, 2025 | Q4</p>
+        </header>
+        
+        <!-- メトリクスカード（4つの統計） -->
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-5 mb-8">
+            <!-- JSで動的生成 -->
+        </div>
+        
+        <!-- 予算配分と戦略投資 -->
+        <div class="grid grid-cols-2 gap-5 mb-5">
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <!-- 予算配分 (Run/Grow/Transform) - JSで動的生成 -->
+            </div>
+            
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <!-- 戦略目標別投資 - JSで動的生成 -->
+            </div>
+        </div>
+        
+        <!-- 主要プロジェクト一覧 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm mb-5">
+            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja">主要プロジェクト一覧</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en">Major Projects List</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">プロジェクト名</span>
+                                <span class="lang-en">Project Name</span>
+                            </th>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">ステータス</span>
+                                <span class="lang-en">Status</span>
+                            </th>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">予算</span>
+                                <span class="lang-en">Budget</span>
+                            </th>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">進捗率</span>
+                                <span class="lang-en">Progress</span>
+                            </th>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">戦略目標</span>
+                                <span class="lang-en">Strategic Goal</span>
+                            </th>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">ROI予測</span>
+                                <span class="lang-en">ROI Forecast</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <!-- JSで動的生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- リスク・課題とマイルストーン -->
+        <div class="grid grid-cols-2 gap-5 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja">主要リスク・課題</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en">Major Risks & Issues</h2>
+                <ul class="space-y-3">
+                    <!-- JSで動的生成 -->
+                </ul>
+            </div>
+            
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja">今後の重要マイルストーン</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en">Upcoming Key Milestones</h2>
+                <ul class="space-y-3">
+                    <!-- JSで動的生成 -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- 人的リソース配置状況 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm mb-5">
+            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja">人的リソース配置状況と稼働率</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en">Human Resource Allocation and Utilization</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">チーム/役割</span>
+                                <span class="lang-en">Team/Role</span>
+                            </th>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">配置可能人数</span>
+                                <span class="lang-en">Available</span>
+                            </th>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">稼働率</span>
+                                <span class="lang-en">Utilization</span>
+                            </th>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">当月</span>
+                                <span class="lang-en">Current</span>
+                            </th>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">3ヶ月</span>
+                                <span class="lang-en">3 Months</span>
+                            </th>
+                            <th class="text-left py-3 px-2 bg-gray-50 text-gray-500 text-xs font-semibold border-b-2 border-gray-200 whitespace-nowrap">
+                                <span class="lang-ja">今期末</span>
+                                <span class="lang-en">Term End</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <!-- JSで動的生成 -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 p-2.5 bg-gray-50 rounded-lg text-xs text-gray-500">
+                <span class="lang-ja">※ステータス:「当月」は当月の状況、「3ヶ月」は当月を含む3ヶ月間の見込み、「今期末」は今期末までの見込みを示します。</span>
+                <span class="lang-en">※Status: "Current" shows current month status, "3 Months" shows forecast including current month, "Term End" shows forecast until end of term.</span>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- JSON → 動的生成する JS -->
+    <script src="../js/it_portfolio_dashboard.js"></script>
+</body>
+</html>

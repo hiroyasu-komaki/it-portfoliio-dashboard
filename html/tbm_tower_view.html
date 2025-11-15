@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITコスト鳥瞰図 / IT Cost Overview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .lang-en {
+            display: none;
+        }
+        
+        [data-lang="en"] .lang-ja {
+            display: none;
+        }
+        
+        [data-lang="en"] .lang-en {
+            display: block;
+        }
+        
+        .expanded .layer-content {
+            display: block;
+        }
+        
+        .layer-content {
+            display: none;
+        }
+        
+        .expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+        
+        .highlight-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+            }
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 p-5" data-lang="ja">
+    <div class="fixed top-5 right-5 z-[1000] bg-white py-2.5 px-4 rounded-full shadow-md flex gap-2.5">
+        <button class="lang-btn active px-4 py-2 border-none rounded-full cursor-pointer font-semibold text-xs transition-all duration-300 bg-gradient-to-br from-indigo-500 to-purple-600 text-white hover:opacity-90" onclick="setLanguage('ja')">
+            日本語
+        </button>
+        <button class="lang-btn px-4 py-2 border-none rounded-full cursor-pointer font-semibold text-xs transition-all duration-300 bg-gray-100 text-gray-500 hover:bg-gray-200" onclick="setLanguage('en')">
+            English
+        </button>
+    </div>
+    
+    <div class="max-w-[1800px] mx-auto">
+        <header class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-8 rounded-2xl mb-8 shadow-md">
+            <h1 class="text-3xl font-bold mb-1 lang-ja">ITコスト鳥瞰図</h1>
+            <h1 class="text-3xl font-bold mb-1 lang-en">IT Cost Overview</h1>
+            <p class="opacity-90 text-sm lang-ja">TBMベースのコスト構造可視化 | 2025年度予算</p>
+            <p class="opacity-90 text-sm lang-en">TBM-based Cost Structure Visualization | FY2025 Budget</p>
+        </header>
+        
+        <div class="grid grid-cols-[300px_1fr] gap-5">
+            <!-- サイドバー -->
+            <aside class="bg-white p-6 rounded-2xl shadow-sm h-fit sticky top-5">
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja">プロジェクト一覧</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en">Project List</h2>
+                
+                <ul class="space-y-2">
+                    <!-- JSで動的生成 -->
+                </ul>
+                
+                <button class="clear-button w-full py-2.5 mt-4 border border-gray-200 rounded-lg bg-white text-gray-500 text-xs cursor-pointer transition-all duration-300 hover:bg-gray-50 hover:border-indigo-500 hover:text-indigo-500" onclick="clearSelection()">
+                    <span class="lang-ja">選択をクリア</span>
+                    <span class="lang-en">Clear Selection</span>
+                </button>
+            </aside>
+            
+            <!-- メインコンテンツ -->
+            <main class="bg-white p-8 rounded-2xl shadow-sm">
+                <div class="tower-header text-center mb-8">
+                    <h2 class="tower-title text-xl font-semibold text-gray-800 mb-2">
+                        <span class="lang-ja">ITコストタワー構造</span>
+                        <span class="lang-en">IT Cost Tower Structure</span>
+                        <span id="selectedProject" class="text-indigo-600"></span>
+                    </h2>
+                    <p class="tower-description text-xs text-gray-500 leading-relaxed lang-ja">
+                        各レイヤーをクリックして詳細を表示できます。左側のプロジェクト一覧から選択すると、関連するコスト要素がハイライトされます。
+                    </p>
+                    <p class="tower-description text-xs text-gray-500 leading-relaxed lang-en">
+                        Click each layer to view details. Select a project from the left sidebar to highlight related cost elements.
+                    </p>
+                </div>
+                
+                <!-- タワーレイヤー（JSで動的生成） -->
+                <div class="space-y-1">
+                    <!-- JSで動的生成 -->
+                </div>
+                
+                <!-- 凡例 -->
+                <div class="flex justify-center gap-6 mt-8 pt-6 border-t-2 border-gray-200">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded bg-gradient-to-r from-purple-600 to-indigo-600"></div>
+                        <span class="text-xs text-gray-600">
+                            <span class="lang-ja">ソリューション</span>
+                            <span class="lang-en">Solution</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded bg-gradient-to-r from-blue-600 to-cyan-600"></div>
+                        <span class="text-xs text-gray-600">
+                            <span class="lang-ja">タワー / サブタワー</span>
+                            <span class="lang-en">Tower / Subtower</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded bg-gradient-to-r from-green-600 to-emerald-600"></div>
+                        <span class="text-xs text-gray-600">
+                            <span class="lang-ja">コストプール / サブプール</span>
+                            <span class="lang-en">Cost Pool / Subpool</span>
+                        </span>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- JSON → 動的生成する JS -->
+    <script src="../js/tbm_tower_view.js"></script>
+</body>
+</html>
