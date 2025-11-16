@@ -1,30 +1,70 @@
 /**
- * IT Portfolio Management Dashboard - Dynamic Data Loading (Config対応版)
- * JSON data → Full UI generation
+ * IT Portfolio Management Dashboard - Multiple JSON Data Loading (Config対応版)
+ * 3つのJSONファイルから動的にUIを生成
  */
 
 let currentLanguage = window.APP_CONFIG?.defaultLanguage || 'ja';
-let dashboardData = null;
-const config = window.APP_CONFIG;
-const i18n = window.I18N;
+let dashboardData = {
+    metrics: null,
+    budgetAllocation: null,
+    strategicInvestment: null,
+    projects: null,
+    risks: null,
+    milestones: null,
+    resourceAllocation: null
+};
+const config = window.APP_CONFIG || {};
+const i18n = window.I18N || {};
 
-/** YAML設定とJSONをロード */
+/** 安全なテキスト取得関数 */
+function getTextSafe(lang, path) {
+    if (window.getText) {
+        return window.getText(lang, path);
+    }
+    // フォールバック: パスの最後の部分を返す
+    const parts = path.split('.');
+    return parts[parts.length - 1];
+}
+
+/** 複数のJSONファイルをロード */
 async function loadDashboardData() {
     try {
         // 1. YAML設定を読み込み
-        await window.loadConfig();
+        if (window.loadConfig) {
+            await window.loadConfig();
+        }
         
-        // 2. データパスを取得してJSONを読み込み
-        const dataPath = window.getDataPath('it_portfolio_dashboard');
-        const response = await fetch(dataPath);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        dashboardData = await response.json();
+        // 2. 3つのJSONファイルを並列で読み込み
+        const portfolioPath = (window.getDataPath && window.getDataPath('it_portfolio')) || '../data/it_portfolio.json';
+        const projectsPath = (window.getDataPath && window.getDataPath('primary_projects')) || '../data/primary_projects.json';
+        const resourcePath = (window.getDataPath && window.getDataPath('resource_allocation')) || '../data/resource_allocation.json';
+        
+        const [portfolioData, projectsData, resourceData] = await Promise.all([
+            fetchJSON(portfolioPath),
+            fetchJSON(projectsPath),
+            fetchJSON(resourcePath)
+        ]);
+        
+        // 3. データをマージ
+        dashboardData = {
+            ...portfolioData,
+            ...projectsData,
+            ...resourceData
+        };
         
         initializeDashboard();
     } catch (e) {
         console.error('データ読み込み失敗:', e);
-        showError(window.getText(currentLanguage, 'itPortfolioDashboard.messages.loadError'));
+        const errorMsg = (window.getText && window.getText(currentLanguage, 'itPortfolioDashboard.messages.loadError')) || 'データの読み込みに失敗しました';
+        showError(errorMsg);
     }
+}
+
+/** JSONファイルをフェッチする共通関数 */
+async function fetchJSON(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status} for ${url}`);
+    return await response.json();
 }
 
 /** エラー表示 */
@@ -41,7 +81,7 @@ function showError(msg) {
 
 /** 初期化 */
 function initializeDashboard() {
-    if (!dashboardData) return;
+    if (!dashboardData.metrics) return;
 
     renderMetrics();
     renderBudgetAllocation();
@@ -63,8 +103,8 @@ function renderMetrics() {
     const { metrics } = dashboardData;
     const t = (path) => {
         return {
-            ja: window.getText('ja', `itPortfolioDashboard.${path}`),
-            en: window.getText('en', `itPortfolioDashboard.${path}`)
+            ja: getTextSafe('ja', `itPortfolioDashboard.${path}`),
+            en: getTextSafe('en', `itPortfolioDashboard.${path}`)
         };
     };
     
@@ -113,8 +153,8 @@ function renderBudgetAllocation() {
     const { budgetAllocation } = dashboardData;
     const t = (path) => {
         return {
-            ja: window.getText('ja', `itPortfolioDashboard.${path}`),
-            en: window.getText('en', `itPortfolioDashboard.${path}`)
+            ja: getTextSafe('ja', `itPortfolioDashboard.${path}`),
+            en: getTextSafe('en', `itPortfolioDashboard.${path}`)
         };
     };
     
@@ -167,21 +207,20 @@ function renderBudgetAllocation() {
 function renderStrategicInvestment() {
     const containers = document.querySelectorAll('.grid.grid-cols-2 .bg-white');
     if (containers.length < 2) return;
-    
-    const container = containers[1];
+
     const { strategicInvestment } = dashboardData;
     const t = (path) => {
         return {
-            ja: window.getText('ja', `itPortfolioDashboard.${path}`),
-            en: window.getText('en', `itPortfolioDashboard.${path}`)
+            ja: getTextSafe('ja', `itPortfolioDashboard.${path}`),
+            en: getTextSafe('en', `itPortfolioDashboard.${path}`)
         };
     };
     
-    const strategicHTML = `
+    const investmentHTML = `
         <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja">${t('strategic.title').ja}</h2>
         <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en">${t('strategic.title').en}</h2>
         
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <div class="flex justify-between items-center mb-2">
                     <div class="text-sm text-gray-700 lang-ja">${t('strategic.customerExperience').ja}</div>
@@ -189,7 +228,7 @@ function renderStrategicInvestment() {
                     <div class="text-sm font-semibold text-gray-800">${strategicInvestment.customerExperience}%</div>
                 </div>
                 <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div class="h-full bg-green-500 rounded-full" style="width: ${strategicInvestment.customerExperience}%;"></div>
+                    <div class="h-full bg-blue-500 rounded-full" style="width: ${strategicInvestment.customerExperience}%;"></div>
                 </div>
             </div>
             
@@ -200,7 +239,7 @@ function renderStrategicInvestment() {
                     <div class="text-sm font-semibold text-gray-800">${strategicInvestment.operationalEfficiency}%</div>
                 </div>
                 <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div class="h-full bg-blue-500 rounded-full" style="width: ${strategicInvestment.operationalEfficiency}%;"></div>
+                    <div class="h-full bg-green-500 rounded-full" style="width: ${strategicInvestment.operationalEfficiency}%;"></div>
                 </div>
             </div>
             
@@ -222,7 +261,7 @@ function renderStrategicInvestment() {
                     <div class="text-sm font-semibold text-gray-800">${strategicInvestment.security}%</div>
                 </div>
                 <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div class="h-full bg-indigo-500 rounded-full" style="width: ${strategicInvestment.security}%;"></div>
+                    <div class="h-full bg-red-500 rounded-full" style="width: ${strategicInvestment.security}%;"></div>
                 </div>
             </div>
             
@@ -233,92 +272,83 @@ function renderStrategicInvestment() {
                     <div class="text-sm font-semibold text-gray-800">${strategicInvestment.infrastructure}%</div>
                 </div>
                 <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div class="h-full bg-red-500 rounded-full" style="width: ${strategicInvestment.infrastructure}%;"></div>
+                    <div class="h-full bg-gray-500 rounded-full" style="width: ${strategicInvestment.infrastructure}%;"></div>
                 </div>
             </div>
         </div>
     `;
     
-    container.innerHTML = strategicHTML;
+    containers[1].innerHTML = investmentHTML;
 }
 
 /* ======================================================
    主要プロジェクト一覧テーブル
    ====================================================== */
 function renderProjectsTable() {
-    const tbody = document.querySelector('table tbody');
+    const tbody = document.querySelector('#projectsTable tbody');
     if (!tbody) return;
 
-    const statusConfig = config.dashboardStatusColors;
-    const goalMapping = {
-        'CX Enhancement': 'customerExperience',
-        'Infrastructure Renewal': 'infrastructure',
-        'Operational Efficiency': 'operationalEfficiency',
-        'New Business Creation': 'newBusiness',
-        'Security Enhancement': 'security'
-    };
+    const statusConfig = config.dashboardStatusColors || config.projectStatusColors;
 
     tbody.innerHTML = dashboardData.projects.map(project => {
-        const status = statusConfig[project.status];
-        const statusTextJA = window.getText('ja', `itPortfolioDashboard.projectTable.${project.status}`);
-        const statusTextEN = window.getText('en', `itPortfolioDashboard.projectTable.${project.status}`);
+        const statusStyle = statusConfig[project.status] || { bg: 'bg-gray-100', text: 'text-gray-700' };
+        const statusTextJA = getTextSafe('ja', `itPortfolioDashboard.projectTable.${project.status}`);
+        const statusTextEN = getTextSafe('en', `itPortfolioDashboard.projectTable.${project.status}`);
         
-        const goalKey = goalMapping[project.goal] || 'customerExperience';
-        const goalJA = window.getText('ja', `itPortfolioDashboard.goals.${goalKey}`);
-        const goalEN = window.getText('en', `itPortfolioDashboard.goals.${goalKey}`);
+        // プログレスバーの色を決定
+        let progressColor = 'bg-green-500';
+        if (project.status === 'delayed') {
+            progressColor = 'bg-red-500';
+        } else if (project.status === 'caution') {
+            progressColor = 'bg-amber-500';
+        }
         
         return `
             <tr class="hover:bg-gray-50 transition-colors duration-200">
                 <td class="py-3 px-2 border-b border-gray-100">
-                    <span class="lang-ja">${project.nameJA}</span>
-                    <span class="lang-en">${project.nameEN}</span>
+                    <div class="font-medium text-gray-800 lang-ja">${project.nameJA}</div>
+                    <div class="font-medium text-gray-800 lang-en">${project.nameEN}</div>
                 </td>
                 <td class="py-3 px-2 border-b border-gray-100">
-                    <span class="py-1 px-3 rounded-xl text-xs font-semibold ${status.bg} ${status.text} lang-ja">${statusTextJA}</span>
-                    <span class="py-1 px-3 rounded-xl text-xs font-semibold ${status.bg} ${status.text} lang-en">${statusTextEN}</span>
+                    <span class="py-1 px-2.5 rounded-lg text-xs font-semibold ${statusStyle.bg} ${statusStyle.text} lang-ja">${statusTextJA}</span>
+                    <span class="py-1 px-2.5 rounded-lg text-xs font-semibold ${statusStyle.bg} ${statusStyle.text} lang-en">${statusTextEN}</span>
                 </td>
-                <td class="py-3 px-2 border-b border-gray-100">${project.budget}</td>
+                <td class="py-3 px-2 border-b border-gray-100 text-sm text-gray-700">${project.budget}</td>
                 <td class="py-3 px-2 border-b border-gray-100">
                     <div class="flex items-center gap-2">
                         <span class="text-xs">${project.progress}%</span>
                         <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden max-w-[100px]">
-                            <div class="h-full ${status.bar} rounded-full" style="width: ${project.progress}%;"></div>
+                            <div class="h-full ${progressColor} rounded-full" style="width: ${project.progress}%;"></div>
                         </div>
                     </div>
                 </td>
-                <td class="py-3 px-2 border-b border-gray-100">
-                    <span class="lang-ja">${goalJA}</span>
-                    <span class="lang-en">${goalEN}</span>
-                </td>
-                <td class="py-3 px-2 border-b border-gray-100">${project.roiForecast}</td>
+                <td class="py-3 px-2 border-b border-gray-100 text-sm text-gray-700">${project.goal}</td>
+                <td class="py-3 px-2 border-b border-gray-100 text-sm font-semibold text-gray-800">${project.roiForecast}</td>
             </tr>
         `;
     }).join('');
 }
 
 /* ======================================================
-   人的リソース配置状況
+   リソース配置状況
    ====================================================== */
 function renderResourceAllocation() {
-    const tables = document.querySelectorAll('table');
-    if (tables.length < 2) return;
-    
-    const tbody = tables[1].querySelector('tbody');
+    const tbody = document.querySelector('#resourceTable tbody');
     if (!tbody) return;
 
-    const statusConfig = config.resourceStatusColors;
+    const statusConfig = config.resourceStatusColors || {};
 
     tbody.innerHTML = dashboardData.resourceAllocation.map(resource => {
-        const currentStatus = statusConfig[resource.current];
-        const threeMonthsStatus = statusConfig[resource.threeMonths];
-        const endOfTermStatus = statusConfig[resource.endOfTerm];
+        const currentStatus = statusConfig[resource.current] || { bg: 'bg-gray-100', text: 'text-gray-700' };
+        const threeMonthsStatus = statusConfig[resource.threeMonths] || { bg: 'bg-gray-100', text: 'text-gray-700' };
+        const endOfTermStatus = statusConfig[resource.endOfTerm] || { bg: 'bg-gray-100', text: 'text-gray-700' };
         
-        const currentTextJA = window.getText('ja', `itPortfolioDashboard.resources.${resource.current}`);
-        const currentTextEN = window.getText('en', `itPortfolioDashboard.resources.${resource.current}`);
-        const threeMonthsTextJA = window.getText('ja', `itPortfolioDashboard.resources.${resource.threeMonths}`);
-        const threeMonthsTextEN = window.getText('en', `itPortfolioDashboard.resources.${resource.threeMonths}`);
-        const endOfTermTextJA = window.getText('ja', `itPortfolioDashboard.resources.${resource.endOfTerm}`);
-        const endOfTermTextEN = window.getText('en', `itPortfolioDashboard.resources.${resource.endOfTerm}`);
+        const currentTextJA = getTextSafe('ja', `itPortfolioDashboard.resources.${resource.current}`);
+        const currentTextEN = getTextSafe('en', `itPortfolioDashboard.resources.${resource.current}`);
+        const threeMonthsTextJA = getTextSafe('ja', `itPortfolioDashboard.resources.${resource.threeMonths}`);
+        const threeMonthsTextEN = getTextSafe('en', `itPortfolioDashboard.resources.${resource.threeMonths}`);
+        const endOfTermTextJA = getTextSafe('ja', `itPortfolioDashboard.resources.${resource.endOfTerm}`);
+        const endOfTermTextEN = getTextSafe('en', `itPortfolioDashboard.resources.${resource.endOfTerm}`);
         
         // 稼働率に応じた色を決定
         let utilizationColor = 'bg-green-500';
@@ -328,7 +358,7 @@ function renderResourceAllocation() {
             utilizationColor = 'bg-amber-500';
         }
         
-        const peopleTextJA = window.getText('ja', 'itPortfolioDashboard.resources.people');
+        const peopleTextJA = getTextSafe('ja', 'itPortfolioDashboard.resources.people');
         
         return `
             <tr class="hover:bg-gray-50 transition-colors duration-200">
@@ -379,8 +409,8 @@ function renderRisks() {
 
     riskContainer.innerHTML = dashboardData.risks.map(risk => {
         const borderClass = levelConfig[risk.level] || 'border-gray-500';
-        const levelTextJA = window.getText('ja', `itPortfolioDashboard.risks.${risk.level}`);
-        const levelTextEN = window.getText('en', `itPortfolioDashboard.risks.${risk.level}`);
+        const levelTextJA = getTextSafe('ja', `itPortfolioDashboard.risks.${risk.level}`);
+        const levelTextEN = getTextSafe('en', `itPortfolioDashboard.risks.${risk.level}`);
         
         return `
             <li class="p-4 rounded-lg border-l-4 ${borderClass} bg-gray-50">
@@ -432,7 +462,10 @@ function setLanguage(lang, evt = null) {
     currentLanguage = lang;
     document.body.setAttribute('data-lang', lang);
     
-    const buttonPreset = config.stylePresets.button;
+    const buttonPreset = config.stylePresets?.button || {
+        primary: 'bg-gradient-to-br from-blue-500 to-purple-600 text-white',
+        secondary: 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+    };
     
     // イベントが無ければ、対応する言語ボタンを自動選択
     let targetBtn = evt?.target;
@@ -463,7 +496,7 @@ function setLanguage(lang, evt = null) {
 
 /** 言語設定読み込み */
 function loadLanguagePreference() {
-    const saved = localStorage.getItem('preferredLanguage') || config.defaultLanguage;
+    const saved = localStorage.getItem('preferredLanguage') || config.defaultLanguage || 'ja';
     setLanguage(saved, null);
 }
 

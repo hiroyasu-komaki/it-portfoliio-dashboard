@@ -3,9 +3,13 @@
 
 # データソース設定
 data_sources:
-  application_layer_view: "../data/application_layer_view_data.json"
-  project_view: "../data/project_view_data.json"
-  it_portfolio_dashboard: "../data/it_portfolio_dashboard_data.json"
+  it_portfolio: "../data/it_portfolio.json"
+  primary_projects: "../data/primary_projects.json"
+  resource_allocation: "../data/resource_allocation.json"
+  application_list: "../data/application_list.json"
+  departments: "../data/departments.json"
+  project_list: "../data/project_list.json"
+
   # 将来的に追加される可能性のあるデータソース
   # users: "../data/users.json"
 

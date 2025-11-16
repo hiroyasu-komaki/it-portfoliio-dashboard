@@ -1,153 +1,76 @@
 {
-  "metrics": {
-    "totalProjects": {
-      "value": 24,
-      "inProgress": 18,
-      "planned": 6
-    },
-    "totalInvestment": {
-      "value": "¥3.2億",
-      "budgetUtilization": "68%"
-    },
-    "averageROI": {
-      "value": "145%",
-      "target": "150%"
-    },
-    "highRiskProjects": {
-      "value": 3
-    }
-  },
-  "budgetAllocation": {
-    "run": { "percent": 45, "amount": "¥1.44億" },
-    "grow": { "percent": 35, "amount": "¥1.12億" },
-    "transform": { "percent": 20, "amount": "¥0.64億" }
-  },
-  "strategicInvestment": {
-    "customerExperience": 30,
-    "operationalEfficiency": 25,
-    "newBusiness": 20,
-    "security": 15,
-    "infrastructure": 10
-  },
   "projects": [
     {
+      "id": "pj001",
       "nameJA": "ECサイトリニューアル",
       "nameEN": "E-Commerce Site Renewal",
       "status": "onTrack",
+      "statusJA": "順調",
+      "statusEN": "On Track",
       "budget": "¥4,500万",
       "progress": 75,
       "goal": "CX Enhancement",
       "roiForecast": "180%"
     },
     {
+      "id": "pj002",
       "nameJA": "基幹システム更改",
       "nameEN": "Core System Upgrade",
       "status": "caution",
+      "statusJA": "注意",
+      "statusEN": "Caution",
       "budget": "¥8,200万",
       "progress": 45,
       "goal": "Infrastructure Renewal",
       "roiForecast": "120%"
     },
     {
+      "id": "pj003",
       "nameJA": "AI活用RPA導入",
       "nameEN": "AI-Powered RPA Implementation",
       "status": "onTrack",
+      "statusJA": "順調",
+      "statusEN": "On Track",
       "budget": "¥2,800万",
       "progress": 90,
       "goal": "Operational Efficiency",
       "roiForecast": "220%"
     },
     {
+      "id": "pj004",
       "nameJA": "クラウドマイグレーション",
       "nameEN": "Cloud Migration",
       "status": "delayed",
+      "statusJA": "遅延",
+      "statusEN": "Delayed",
       "budget": "¥6,500万",
       "progress": 30,
       "goal": "Infrastructure Renewal",
       "roiForecast": "95%"
     },
     {
+      "id": "pj005",
       "nameJA": "サブスクサービス開発",
       "nameEN": "Subscription Service Development",
       "status": "onTrack",
+      "statusJA": "順調",
+      "statusEN": "On Track",
       "budget": "¥5,100万",
       "progress": 60,
       "goal": "New Business Creation",
       "roiForecast": "200%"
     },
     {
+      "id": "pj006",
       "nameJA": "ゼロトラスト導入",
       "nameEN": "Zero Trust Implementation",
       "status": "caution",
+      "statusJA": "注意",
+      "statusEN": "Caution",
       "budget": "¥3,900万",
       "progress": 55,
       "goal": "Security Enhancement",
       "roiForecast": "110%"
-    }
-  ],
-  "resourceAllocation": [
-    {
-      "roleJA": "プロジェクトマネージャー",
-      "roleEN": "Project Manager",
-      "available": 8,
-      "utilization": 95,
-      "current": "overload",
-      "threeMonths": "overload",
-      "endOfTerm": "high"
-    },
-    {
-      "roleJA": "アーキテクト",
-      "roleEN": "Architect",
-      "available": 5,
-      "utilization": 88,
-      "current": "high",
-      "threeMonths": "high",
-      "endOfTerm": "optimal"
-    },
-    {
-      "roleJA": "フロントエンド開発",
-      "roleEN": "Frontend Dev",
-      "available": 12,
-      "utilization": 82,
-      "current": "optimal",
-      "threeMonths": "optimal",
-      "endOfTerm": "optimal"
-    },
-    {
-      "roleJA": "バックエンド開発",
-      "roleEN": "Backend Dev",
-      "available": 15,
-      "utilization": 91,
-      "current": "high",
-      "threeMonths": "high",
-      "endOfTerm": "optimal"
-    },
-    {
-      "roleJA": "インフラエンジニア",
-      "roleEN": "Infrastructure Eng",
-      "available": 8,
-      "utilization": 93,
-      "current": "overload",
-      "threeMonths": "high",
-      "endOfTerm": "optimal"
-    },
-    {
-      "roleJA": "QA/テスト",
-      "roleEN": "QA/Testing",
-      "available": 6,
-      "utilization": 75,
-      "current": "optimal",
-      "threeMonths": "optimal",
-      "endOfTerm": "available"
-    },
-    {
-      "roleJA": "データアナリスト",
-      "roleEN": "Data Analyst",
-      "available": 4,
-      "utilization": 68,
-      "current": "available",
-      "threeMonths": "optimal",
-      "endOfTerm": "optimal"
     }
   ],
   "risks": [
