@@ -14,11 +14,13 @@ pnpm-debug.log*
 .cache/
 .next/
 out/
-dist/
 build/
 public/build/
 parcel-cache/
 .turbo/
+
+# Tailwind CSS - ビルド済みCSSファイル
+# assets/css/output.css  # ← コメントアウト（Gitに含める）
 
 # Environment
 .env
