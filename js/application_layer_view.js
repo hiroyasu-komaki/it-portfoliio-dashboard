@@ -1,17 +1,25 @@
 /**
  * Application Layer Overview - Full Dynamic Vanilla JS
- * JSON data → Full UI generation
+ * JSON data → Full UI generation (Config対応版)
  */
 
-let currentLanguage = 'ja';
+let currentLanguage = window.APP_CONFIG?.defaultLanguage || 'ja';
 let appData = null;
+const config = window.APP_CONFIG;
+const i18n = window.I18N;
 
-/** JSONをロード */
+/** YAML設定とJSONをロード */
 async function loadApplicationData() {
     try {
-        const response = await fetch('../data/application_layer_view_data.json');
+        // 1. YAML設定を読み込み
+        await window.loadConfig();
+        
+        // 2. データパスを取得してJSONを読み込み
+        const dataPath = window.getDataPath('application_layer_view');
+        const response = await fetch(dataPath);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         appData = await response.json();
+        
         initializeApp();
     } catch (e) {
         console.error('データ読み込み失敗:', e);
@@ -22,9 +30,10 @@ async function loadApplicationData() {
 /** エラー表示 */
 function showError(msg) {
     const main = document.querySelector('main');
+    const errorMsg = msg || getText(currentLanguage, 'messages.loadError');
     main.innerHTML = `
         <div class="bg-red-50 p-6 border border-red-200 rounded-lg text-center text-red-700 font-medium">
-            ${msg}
+            ${errorMsg}
         </div>
     `;
 }
@@ -47,8 +56,8 @@ function renderProjectList() {
 
     appData.projects.forEach(project => {
         const li = document.createElement('li');
-        li.className =
-            'project-item p-3 mb-2 rounded-lg cursor-pointer transition-all duration-300 border-l-[3px] border-l-transparent bg-gray-50 hover:bg-gray-100 hover:border-l-gradient-start hover:translate-x-1';
+        const preset = config.stylePresets.projectItem;
+        li.className = `${preset.base} ${preset.hover}`;
         li.dataset.project = project.id;
 
         li.innerHTML = `
@@ -82,21 +91,15 @@ function renderApplicationGrid() {
 
 /** アプリカード生成 */
 function createApplicationCard(app) {
-    const eolColors = {
-        'critical': 'bg-red-500',
-        'warning': 'bg-amber-500',
-        'safe': 'bg-green-500',
-        'unknown': 'bg-gray-400'
-    };
-    const eolColor = eolColors[app.eolStatus] || eolColors['unknown'];
+    const eolColor = config.eolColors[app.eolStatus] || config.eolColors['unknown'];
+    const cardPreset = config.stylePresets.card;
 
     const card = document.createElement('div');
-    card.className =
-        'app-card relative bg-gray-50 p-5 rounded-xl border-2 border-gray-200 transition-all duration-300 hover:shadow-lg hover:-translate-y-1';
+    card.className = `app-card ${cardPreset.base} ${cardPreset.hover}`;
     card.dataset.projects = app.projects.join(' ');
 
     card.innerHTML = `
-        <div class="eol-badge absolute -top-2 -right-2 w-4 h-4 rounded-full border-2 border-white ${eolColor}"
+        <div class="eol-badge absolute -top-2 -right-2 w-4 h-4 rounded-full border-2 border-white ${eolColor.bg}"
              title="${app.eolDate} / ${app.eolDateEN}"></div>
 
         <div class="app-icon text-3xl mb-3">${app.icon}</div>
@@ -115,7 +118,7 @@ function createApplicationCard(app) {
             ${app.tags
                 .map(
                     tag =>
-                        `<span class="app-tag inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium">${tag}</span>`
+                        `<span class="app-tag inline-block px-2 py-0.5 ${config.categoryColors.default} rounded text-[10px] font-medium">${tag}</span>`
                 )
                 .join('')}
         </div>
@@ -127,40 +130,32 @@ function createApplicationCard(app) {
    Project selection / highlight logic
    ====================================================== */
 function selectProject(projectId) {
+    const projectPreset = config.stylePresets.projectItem;
+    const cardPreset = config.stylePresets.card;
+    
     // Sidebar project highlight reset
     document.querySelectorAll('.project-item').forEach(item => {
-        item.classList.remove(
-            'active',
-            'bg-gradient-to-br',
-            'from-[rgba(102,126,234,0.1)]',
-            'to-[rgba(118,75,162,0.1)]',
-            'font-semibold'
-        );
+        // activeクラスのみを削除（baseとhoverは保持）
+        item.className = `${projectPreset.base} ${projectPreset.hover}`;
     });
 
     // App highlight reset
     document.querySelectorAll('.app-card').forEach(card => {
-        card.classList.remove('highlighted', 'highlight-pulse');
+        card.className = `app-card ${cardPreset.base} ${cardPreset.hover}`;
     });
 
     if (projectId) {
         // Sidebar highlight
         const selectedItem = document.querySelector(`[data-project="${projectId}"]`);
         if (selectedItem) {
-            selectedItem.classList.add(
-                'active',
-                'bg-gradient-to-br',
-                'from-[rgba(102,126,234,0.1)]',
-                'to-[rgba(118,75,162,0.1)]',
-                'font-semibold'
-            );
+            selectedItem.className = `${projectPreset.base} ${projectPreset.hover} ${projectPreset.active}`;
         }
 
         // Application highlight
         document.querySelectorAll('.app-card').forEach(card => {
             const projects = card.dataset.projects.split(' ');
             if (projects.includes(projectId)) {
-                card.classList.add('highlighted', 'highlight-pulse');
+                card.className = `app-card ${cardPreset.base} ${cardPreset.hover} ${cardPreset.highlighted} highlight-pulse`;
             }
         });
 
@@ -191,10 +186,10 @@ function setLanguage(lang, evt = null) {
     currentLanguage = lang;
     document.body.setAttribute('data-lang', lang);
 
-    // --- 修正ポイント：evt が null でも動くようにする ---
-    let targetBtn = evt?.target;
+    const buttonPreset = config.stylePresets.button;
 
     // イベントが無ければ、対応する言語ボタンを自動選択
+    let targetBtn = evt?.target;
     if (!targetBtn) {
         document.querySelectorAll('.lang-btn').forEach(btn => {
             if (
@@ -208,25 +203,13 @@ function setLanguage(lang, evt = null) {
 
     // ボタン状態リセット
     document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.remove(
-            'active',
-            'bg-gradient-to-br',
-            'from-gradient-start',
-            'to-gradient-end',
-            'text-white'
-        );
-        btn.classList.add('bg-gray-100', 'text-gray-500');
+        btn.className = `lang-btn ${buttonPreset.secondary}`;
     });
 
     // 対象ボタンをアクティブに
-    targetBtn.classList.remove('bg-gray-100', 'text-gray-500');
-    targetBtn.classList.add(
-        'active',
-        'bg-gradient-to-br',
-        'from-gradient-start',
-        'to-gradient-end',
-        'text-white'
-    );
+    if (targetBtn) {
+        targetBtn.className = `lang-btn active ${buttonPreset.primary}`;
+    }
 
     // 保存
     localStorage.setItem('preferredLanguage', lang);
@@ -234,8 +217,15 @@ function setLanguage(lang, evt = null) {
 
 /** 言語設定読み込み */
 function loadLanguagePreference() {
-    const saved = localStorage.getItem('preferredLanguage') || 'ja';
+    const saved = localStorage.getItem('preferredLanguage') || config.defaultLanguage;
     setLanguage(saved, null);
+}
+
+/**
+ * テキスト取得ヘルパー
+ */
+function getText(lang, path) {
+    return window.getText(lang, path);
 }
 
 /** Init */

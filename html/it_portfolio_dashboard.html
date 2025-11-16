@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITポートフォリオ管理ダッシュボード / IT Portfolio Management Dashboard</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/i18n.js"></script>
+
     <style>
         .lang-en {
             display: none;
@@ -19,25 +24,38 @@
         }
     </style>
 </head>
-<body class="font-sans bg-gray-50 p-5" data-lang="ja">
-    <div class="fixed top-5 right-5 z-[1000] bg-white py-2.5 px-4 rounded-full shadow-md flex gap-2.5">
-        <button class="lang-btn active px-4 py-2 border-none rounded-full cursor-pointer font-semibold text-xs transition-all duration-300 bg-gradient-to-br from-indigo-500 to-purple-600 text-white hover:opacity-90" onclick="setLanguage('ja')">
+
+<body class="bg-gray-100 p-5">
+    <!-- 言語切り替え -->
+    <div
+        class="fixed top-5 right-5 z-50 bg-white px-4 py-2.5 rounded-full shadow-lg flex gap-2.5"
+    >
+        <button
+            onclick="setLanguage('ja', event)"
+            class="lang-btn active px-4 py-2 border-0 rounded-full cursor-pointer font-semibold text-xs transition-all duration-300 bg-gradient-to-br from-gradient-start to-gradient-end text-white"
+        >
             日本語
         </button>
-        <button class="lang-btn px-4 py-2 border-none rounded-full cursor-pointer font-semibold text-xs transition-all duration-300 bg-gray-100 text-gray-500 hover:bg-gray-200" onclick="setLanguage('en')">
+        <button
+            onclick="setLanguage('en', event)"
+            class="lang-btn px-4 py-2 border-0 rounded-full cursor-pointer font-semibold text-xs transition-all duration-300 bg-gray-100 text-gray-500 hover:bg-gray-200"
+        >
             English
         </button>
     </div>
-    
-    <div class="max-w-[1400px] mx-auto">
-        <header class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-8 rounded-2xl mb-8 shadow-md">
-            <h1 class="text-3xl font-bold mb-2 lang-ja">ITポートフォリオ管理ダッシュボード</h1>
-            <h1 class="text-3xl font-bold mb-2 lang-en">IT Portfolio Management Dashboard</h1>
-            <p class="opacity-90 text-sm lang-ja">最終更新: 2025年11月2日 | 第4四半期</p>
-            <p class="opacity-90 text-sm lang-en">Last Updated: November 2, 2025 | Q4</p>
+
+    <div class="max-w-[1600px] mx-auto">
+        <!-- Header -->
+        <header
+            class="bg-gradient-to-br from-gradient-start to-gradient-end text-white p-8 rounded-xl mb-8 shadow-md"
+    >
+            <h1 class="text-3xl font-bold mb-2 lang-ja" id="headerTitle">ITポートフォリオ管理ダッシュボード</h1>
+            <h1 class="text-3xl font-bold mb-2 lang-en" id="headerTitleEN">IT Portfolio Management Dashboard</h1>
+            <p class="opacity-90 text-sm lang-ja" id="headerSubtitle">最終更新: 2025年11月2日 | 第4四半期</p>
+            <p class="opacity-90 text-sm lang-en" id="headerSubtitleEN">Last Updated: November 2, 2025 | Q4</p>
         </header>
         
-        <!-- メトリクスカード（4つの統計） -->
+        <!-- メトリクスカード(4つの統計) -->
         <div class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-5 mb-8">
             <!-- JSで動的生成 -->
         </div>
@@ -55,8 +73,8 @@
         
         <!-- 主要プロジェクト一覧 -->
         <div class="bg-white p-6 rounded-2xl shadow-sm mb-5">
-            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja">主要プロジェクト一覧</h2>
-            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en">Major Projects List</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja" id="projectTableTitle">主要プロジェクト一覧</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en" id="projectTableTitleEN">Major Projects List</h2>
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse">
                     <thead>
@@ -97,16 +115,16 @@
         <!-- リスク・課題とマイルストーン -->
         <div class="grid grid-cols-2 gap-5 mb-8">
             <div class="bg-white p-6 rounded-2xl shadow-sm">
-                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja">主要リスク・課題</h2>
-                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en">Major Risks & Issues</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja" id="risksTitle">主要リスク・課題</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en" id="risksTitleEN">Major Risks & Issues</h2>
                 <ul class="space-y-3">
                     <!-- JSで動的生成 -->
                 </ul>
             </div>
             
             <div class="bg-white p-6 rounded-2xl shadow-sm">
-                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja">今後の重要マイルストーン</h2>
-                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en">Upcoming Key Milestones</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja" id="milestonesTitle">今後の重要マイルストーン</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en" id="milestonesTitleEN">Upcoming Key Milestones</h2>
                 <ul class="space-y-3">
                     <!-- JSで動的生成 -->
                 </ul>
@@ -115,8 +133,8 @@
 
         <!-- 人的リソース配置状況 -->
         <div class="bg-white p-6 rounded-2xl shadow-sm mb-5">
-            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja">人的リソース配置状況と稼働率</h2>
-            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en">Human Resource Allocation and Utilization</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-ja" id="resourcesTitle">人的リソース配置状況と稼働率</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200 lang-en" id="resourcesTitleEN">Human Resource Allocation and Utilization</h2>
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse">
                     <thead>

@@ -6,6 +6,9 @@
     <title>アプリケーション鳥瞰図 / Application Layer Overview</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/i18n.js"></script>
 
     <style>
         .lang-en { display: none; }
@@ -33,19 +36,6 @@
             animation: pulse 2s ease-in-out infinite;
         }
     </style>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        "gradient-start": "#667eea",
-                        "gradient-end": "#764ba2",
-                    },
-                },
-            },
-        };
-    </script>
 </head>
 
 <body class="bg-gray-100 p-5">
@@ -73,12 +63,12 @@
             class="bg-gradient-to-br from-gradient-start to-gradient-end text-white p-8 rounded-xl mb-8 shadow-md"
         >
             <h1 class="text-3xl mb-1.5">
-                <span class="lang-ja">アプリケーション鳥瞰図</span>
-                <span class="lang-en">Application Layer Overview</span>
+                <span class="lang-ja" id="headerTitle">アプリケーション鳥瞰図</span>
+                <span class="lang-en" id="headerTitleEN">Application Layer Overview</span>
             </h1>
             <p class="opacity-90 text-sm">
-                <span class="lang-ja">全社システムマップとプロジェクト関連図</span>
-                <span class="lang-en">Enterprise System Map & Project Relations</span>
+                <span class="lang-ja" id="headerSubtitle">全社システムマップとプロジェクト関連図</span>
+                <span class="lang-en" id="headerSubtitleEN">Enterprise System Map & Project Relations</span>
             </p>
         </header>
 
@@ -91,8 +81,8 @@
                 <h2
                     class="text-lg font-semibold text-gray-800 mb-5 pb-2.5 border-b-2 border-gray-200"
                 >
-                    <span class="lang-ja">プロジェクト一覧</span>
-                    <span class="lang-en">Project List</span>
+                    <span class="lang-ja" id="sidebarTitle">プロジェクト一覧</span>
+                    <span class="lang-en" id="sidebarTitleEN">Project List</span>
                 </h2>
 
                 <!-- JSONから動的生成 -->
@@ -102,8 +92,8 @@
                     onclick="clearSelection()"
                     class="mt-5 w-full py-2.5 bg-gray-100 text-gray-700 border-0 rounded-lg cursor-pointer text-sm font-medium transition-all duration-300 hover:bg-gray-200"
                 >
-                    <span class="lang-ja">🔄 選択解除</span>
-                    <span class="lang-en">🔄 Clear Selection</span>
+                    <span class="lang-ja" id="clearBtn">🔄 選択解除</span>
+                    <span class="lang-en" id="clearBtnEN">🔄 Clear Selection</span>
                 </button>
             </aside>
 
@@ -115,8 +105,8 @@
                     <h2
                         class="content-title text-xl font-semibold text-gray-800"
                     >
-                        <span class="lang-ja">アプリケーション一覧</span>
-                        <span class="lang-en">Application List</span>
+                        <span class="lang-ja" id="mainTitle">アプリケーション一覧</span>
+                        <span class="lang-en" id="mainTitleEN">Application List</span>
                         <span id="selectedProject"></span>
                     </h2>
 

@@ -1,17 +1,24 @@
 /**
- * プロジェクト鳥瞰図 - データローダー
+ * プロジェクト鳥瞰図 - データローダー (Config対応版)
  * Project Overview - Data Loader
  */
 
-let currentLanguage = 'ja';
+let currentLanguage = window.APP_CONFIG?.defaultLanguage || 'ja';
 let projectData = null;
+const config = window.APP_CONFIG;
+const i18n = window.I18N;
 
 /**
- * JSONデータをフェッチ
+ * YAML設定とJSONデータをフェッチ
  */
 async function loadProjectData() {
     try {
-        const response = await fetch('../data/project_view_data.json');
+        // 1. YAML設定を読み込み
+        await window.loadConfig();
+        
+        // 2. データパスを取得してJSONを読み込み
+        const dataPath = window.getDataPath('project_view');
+        const response = await fetch(dataPath);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -19,7 +26,7 @@ async function loadProjectData() {
         initializeApp();
     } catch (error) {
         console.error('データの読み込みに失敗しました:', error);
-        showError('データの読み込みに失敗しました。ページを再読み込みしてください。');
+        showError(window.getText(currentLanguage, 'projectView.messages.loadError'));
     }
 }
 
@@ -58,8 +65,7 @@ function renderDepartments() {
     const departmentList = document.querySelector('aside ul');
     if (!departmentList) return;
     
-    // 既存のリストをクリア（最初の「すべて」以外）
-    const allItem = departmentList.firstElementChild;
+    // 既存のリストをクリア
     departmentList.innerHTML = '';
     
     // 「すべて」を追加
@@ -80,8 +86,9 @@ function renderDepartments() {
  * 「すべて」部門アイテムを作成
  */
 function createAllDepartmentItem(dept) {
+    const preset = config.stylePresets.departmentItem;
     const li = document.createElement('li');
-    li.className = 'p-3 px-4 mb-2 rounded-lg cursor-pointer transition-all duration-300 border-l-[3px] border-transparent bg-gray-50 hover:bg-gray-100 hover:border-l-purple-500 hover:translate-x-1';
+    li.className = `${preset.base} ${preset.hover}`;
     li.onclick = () => clearSelection();
     
     li.innerHTML = `
@@ -90,8 +97,8 @@ function createAllDepartmentItem(dept) {
             <span class="lang-en">${dept.nameEN}</span>
         </div>
         <div class="text-xs text-gray-500">
-            <span class="lang-ja">${dept.projectCount}プロジェクト</span>
-            <span class="lang-en">${dept.projectCount} Projects</span>
+            <span class="lang-ja">${dept.projectCount}${window.getText('ja', 'projectView.sidebar.projects')}</span>
+            <span class="lang-en">${dept.projectCount} ${window.getText('en', 'projectView.sidebar.projects')}</span>
         </div>
     `;
     
@@ -102,8 +109,9 @@ function createAllDepartmentItem(dept) {
  * 部門アイテムを作成
  */
 function createDepartmentItem(dept) {
+    const preset = config.stylePresets.departmentItem;
     const li = document.createElement('li');
-    li.className = 'department-item p-3 px-4 mb-2 rounded-lg cursor-pointer transition-all duration-300 border-l-[3px] border-transparent bg-gray-50 hover:bg-gray-100 hover:border-l-purple-500 hover:translate-x-1';
+    li.className = `${preset.base} ${preset.hover}`;
     li.setAttribute('data-department', dept.id);
     li.onclick = () => selectDepartment(dept.id);
     
@@ -113,8 +121,8 @@ function createDepartmentItem(dept) {
             <span class="lang-en">${dept.nameEN}</span>
         </div>
         <div class="department-count text-xs text-gray-500">
-            <span class="lang-ja">${dept.projectCount}プロジェクト</span>
-            <span class="lang-en">${dept.projectCount} Projects</span>
+            <span class="lang-ja">${dept.projectCount}${window.getText('ja', 'projectView.sidebar.projects')}</span>
+            <span class="lang-en">${dept.projectCount} ${window.getText('en', 'projectView.sidebar.projects')}</span>
         </div>
     `;
     
@@ -130,8 +138,8 @@ function renderProjects() {
     
     mainContent.innerHTML = `
         <h2 class="text-xl font-bold text-gray-800 mb-5">
-            <span class="lang-ja">プロジェクト一覧</span>
-            <span class="lang-en">Project List</span>
+            <span class="lang-ja">${window.getText('ja', 'projectView.main.projectList')}</span>
+            <span class="lang-en">${window.getText('en', 'projectView.main.projectList')}</span>
             <span id="selectedDepartment" class="text-purple-600"></span>
         </h2>
         
@@ -145,18 +153,11 @@ function renderProjects() {
  * プロジェクトカードを作成
  */
 function createProjectCard(project) {
-    const statusColors = {
-        'on-track': { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-300', progress: 'from-green-400 to-green-600' },
-        'at-risk': { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300', progress: 'from-yellow-400 to-yellow-600' },
-        'delayed': { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-300', progress: 'from-red-400 to-red-600' },
-        'completed': { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300', progress: 'from-blue-400 to-blue-600' },
-        'planning': { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-300', progress: 'from-gray-400 to-gray-600' }
-    };
-    
-    const colors = statusColors[project.status] || statusColors['planning'];
+    const colors = config.projectStatusColors[project.status] || config.projectStatusColors['planning'];
+    const cardPreset = config.stylePresets.projectCard;
     
     return `
-        <div class="project-card bg-white p-5 rounded-xl shadow-sm border-2 border-gray-200 transition-all duration-300 hover:shadow-md hover:scale-[1.02]" 
+        <div class="${cardPreset.base} ${cardPreset.hover}" 
              data-department="${project.department}" 
              data-status="${project.status}">
             <div class="flex justify-between items-start mb-3">
@@ -173,8 +174,8 @@ function createProjectCard(project) {
             <div class="mb-4 space-y-2 text-xs">
                 <div class="flex justify-between">
                     <span class="text-gray-500">
-                        <span class="lang-ja">フェーズ</span>
-                        <span class="lang-en">Phase</span>
+                        <span class="lang-ja">${window.getText('ja', 'projectView.card.phase')}</span>
+                        <span class="lang-en">${window.getText('en', 'projectView.card.phase')}</span>
                     </span>
                     <span class="text-gray-800 font-medium">
                         <span class="lang-ja">${project.phaseLabelJA}</span>
@@ -183,8 +184,8 @@ function createProjectCard(project) {
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-500">
-                        <span class="lang-ja">予算</span>
-                        <span class="lang-en">Budget</span>
+                        <span class="lang-ja">${window.getText('ja', 'projectView.card.budget')}</span>
+                        <span class="lang-en">${window.getText('en', 'projectView.card.budget')}</span>
                     </span>
                     <span class="text-gray-800 font-medium">
                         <span class="lang-ja">${project.budgetJA}</span>
@@ -193,8 +194,8 @@ function createProjectCard(project) {
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-500">
-                        <span class="lang-ja">進捗</span>
-                        <span class="lang-en">Progress</span>
+                        <span class="lang-ja">${window.getText('ja', 'projectView.card.progress')}</span>
+                        <span class="lang-en">${window.getText('en', 'projectView.card.progress')}</span>
                     </span>
                     <span class="text-gray-800 font-medium">${project.progress}%</span>
                 </div>
@@ -207,16 +208,16 @@ function createProjectCard(project) {
             <div class="text-xs space-y-2 text-gray-600">
                 <div>
                     <strong class="text-gray-800">
-                        <span class="lang-ja">期間:</span>
-                        <span class="lang-en">Duration:</span>
+                        <span class="lang-ja">${window.getText('ja', 'projectView.card.duration')}</span>
+                        <span class="lang-en">${window.getText('en', 'projectView.card.duration')}</span>
                     </strong>
                     <span class="lang-ja">${project.durationJA}</span>
                     <span class="lang-en">${project.durationEN}</span>
                 </div>
                 <div>
                     <strong class="text-gray-800">
-                        <span class="lang-ja">目標:</span>
-                        <span class="lang-en">Goal:</span>
+                        <span class="lang-ja">${window.getText('ja', 'projectView.card.goal')}</span>
+                        <span class="lang-en">${window.getText('en', 'projectView.card.goal')}</span>
                     </strong>
                     <span class="lang-ja">${project.goalJA}</span>
                     <span class="lang-en">${project.goalEN}</span>
@@ -229,17 +230,34 @@ function createProjectCard(project) {
 /**
  * 言語を設定
  */
-function setLanguage(lang) {
+function setLanguage(lang, evt = null) {
     currentLanguage = lang;
     document.body.setAttribute('data-lang', lang);
     
-    // ボタンの状態を更新
+    const buttonPreset = config.stylePresets.button;
+    
+    // イベントが無ければ、対応する言語ボタンを自動選択
+    let targetBtn = evt?.target;
+    if (!targetBtn) {
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            if (
+                (lang === 'ja' && btn.textContent.includes('日本語')) ||
+                (lang === 'en' && btn.textContent.includes('English'))
+            ) {
+                targetBtn = btn;
+            }
+        });
+    }
+    
+    // ボタン状態リセット
     document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.remove('active', 'bg-gradient-to-br', 'from-purple-500', 'to-purple-700', 'text-white');
-        btn.classList.add('bg-gray-100', 'text-gray-500');
+        btn.className = `lang-btn ${buttonPreset.secondary}`;
     });
-    event.target.classList.remove('bg-gray-100', 'text-gray-500');
-    event.target.classList.add('active', 'bg-gradient-to-br', 'from-purple-500', 'to-purple-700', 'text-white');
+    
+    // 対象ボタンをアクティブに
+    if (targetBtn) {
+        targetBtn.className = `lang-btn active ${buttonPreset.primary}`;
+    }
     
     // 設定を保存
     localStorage.setItem('preferredLanguage', lang);
@@ -249,25 +267,33 @@ function setLanguage(lang) {
  * 部門を選択
  */
 function selectDepartment(departmentId) {
-    // すべてのハイライトをクリア
-    document.querySelectorAll('.project-card').forEach(card => {
-        card.classList.remove('highlighted', 'highlight-pulse');
-    });
+    const cardPreset = config.stylePresets.projectCard;
+    const deptPreset = config.stylePresets.departmentItem;
     
     // すべての部門選択をクリア
     document.querySelectorAll('.department-item').forEach(item => {
-        item.classList.remove('active', 'bg-gradient-to-br', 'from-purple-500/10', 'to-purple-700/10', 'border-l-purple-500', 'font-semibold');
+        item.className = `${deptPreset.base} ${deptPreset.hover}`;
+    });
+    
+    // すべてのプロジェクトカードのハイライトをクリア
+    document.querySelectorAll('[data-department][data-status]').forEach(card => {
+        // department-itemではないカード（プロジェクトカード）のみ処理
+        if (!card.classList.contains('department-item')) {
+            card.className = `${cardPreset.base} ${cardPreset.hover}`;
+            card.style.background = '';
+            card.style.borderColor = '';
+        }
     });
     
     if (departmentId) {
         // 選択された部門をハイライト
-        const selectedDeptItem = document.querySelector(`[data-department="${departmentId}"]`);
-        if (selectedDeptItem && selectedDeptItem.classList.contains('department-item')) {
-            selectedDeptItem.classList.add('active', 'bg-gradient-to-br', 'from-purple-500/10', 'to-purple-700/10', 'border-l-purple-500', 'font-semibold');
+        const selectedDeptItem = document.querySelector(`.department-item[data-department="${departmentId}"]`);
+        if (selectedDeptItem) {
+            selectedDeptItem.className = `${deptPreset.base} ${deptPreset.hover} ${deptPreset.active}`;
         }
         
         // 関連プロジェクトをハイライト
-        document.querySelectorAll('.project-card').forEach(card => {
+        document.querySelectorAll('[data-department][data-status]').forEach(card => {
             const dept = card.getAttribute('data-department');
             if (dept === departmentId) {
                 card.classList.add('highlighted', 'highlight-pulse');
@@ -280,19 +306,12 @@ function selectDepartment(departmentId) {
         const dept = projectData.departments.find(d => d.id === departmentId);
         const selectedDeptSpan = document.getElementById('selectedDepartment');
         if (dept && selectedDeptSpan) {
-            if (currentLanguage === 'ja') {
-                selectedDeptSpan.textContent = ' - ' + dept.nameJA;
-            } else {
-                selectedDeptSpan.textContent = ' - ' + dept.nameEN;
-            }
+            selectedDeptSpan.textContent = currentLanguage === 'ja' 
+                ? ` - ${dept.nameJA}` 
+                : ` - ${dept.nameEN}`;
         }
     } else {
         document.getElementById('selectedDepartment').textContent = '';
-        // すべてのプロジェクトカードをリセット
-        document.querySelectorAll('.project-card').forEach(card => {
-            card.style.background = '';
-            card.style.borderColor = '';
-        });
     }
 }
 
@@ -307,20 +326,11 @@ function clearSelection() {
  * 言語設定を読み込み
  */
 function loadLanguagePreference() {
-    const savedLang = localStorage.getItem('preferredLanguage') || 'ja';
-    currentLanguage = savedLang;
-    if (savedLang === 'en') {
-        document.body.setAttribute('data-lang', 'en');
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.classList.remove('active', 'bg-gradient-to-br', 'from-purple-500', 'to-purple-700', 'text-white');
-            btn.classList.add('bg-gray-100', 'text-gray-500');
-            if (btn.textContent.trim() === 'English') {
-                btn.classList.remove('bg-gray-100', 'text-gray-500');
-                btn.classList.add('active', 'bg-gradient-to-br', 'from-purple-500', 'to-purple-700', 'text-white');
-            }
-        });
-    }
+    const saved = localStorage.getItem('preferredLanguage') || config.defaultLanguage;
+    setLanguage(saved, null);
 }
+
+// getText は window.getText を直接使用するため、ローカル関数は不要
 
 // ページ読み込み時にデータをフェッチ
 document.addEventListener('DOMContentLoaded', loadProjectData);
